@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resume Screening AI</title>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #F4F4F4;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 900px;
+            background: #fff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+            text-align: center;
+            transition: transform 0.5s ease-in-out;
+        }
+
+        h1, h2 {
+            color: #23486A;
+        }
+
+        .step {
+            display: none;
+        }
+
+        .active {
+            display: block;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        li {
+            background: rgba(35, 72, 106, 0.8);
+            color: #fff;
+            padding: 8px;
+            border-radius: 5px;
+        }
+
+        input[type="file"], input[type="submit"] {
+            padding: 12px;
+            border: none;
+            border-radius: 5px;
+            margin: 10px 0;
+            cursor: pointer;
+        }
+
+        input[type="submit"] {
+            background: #23486A;
+            color: #F0B036;
+            transition: 0.3s;
+        }
+
+        input[type="submit"]:hover {
+            background: #3B6790;
+        }
+
+        .result-container {
+            margin-top: 20px;
+            padding: 20px;
+            background: #F4F4F4;
+            border-radius: 8px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
+
+        .result-container div {
+            flex: 1;
+            min-width: 300px;
+            padding: 10px;
+        }
+
+        .btn-next, .btn-prev {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: 0.3s;
+            margin: 10px;
+        }
+
+        .btn-next {
+            background: #F0B036;
+            color: #23486A;
+        }
+
+        .btn-next:hover {
+            background: #E0A025;
+        }
+
+        .btn-prev {
+            background: #23486A;
+            color: #F0B036;
+        }
+
+        .btn-prev:hover {
+            background: #3B6790;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="step active" id="step1">
+            <h1>Resume Screening AI</h1>
+            <p>Upload your resume (PDF or TXT) and let our AI categorize, recommend jobs, and extract key information.</p>
+            <form action="/pred" method="post" enctype="multipart/form-data">
+                <input type="file" name="resume" accept=".pdf, .txt" required>
+                <input type="submit" value="Analyze Resume">
+            </form>
+        </div>
+
+        <div class="step" id="step2">
+            {% if predicted_category %}
+            <div class="result-container">
+                <div>
+                    <h2>Results</h2>
+                    <p><strong>Category:</strong> {{ predicted_category }}</p>
+                    <p><strong>Recommended Job:</strong> {{ recommended_job }}</p>
+                </div>
+                <div>
+                    <h3>Extracted Information</h3>
+                    <p><strong>Name:</strong> {{ name }}</p>
+                    <p><strong>Phone:</strong> {{ phone }}</p>
+                    <p><strong>Email:</strong> {{ email }}</p>
+                </div>
+                {% if extracted_skills %}
+                <div>
+                    <h4>Skills:</h4>
+                    <ul>
+                        {% for skill in extracted_skills %}
+                        <li>{{ skill }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+                {% if extracted_education %}
+                <div>
+                    <h4>Education:</h4>
+                    <ul>
+                        {% for edu in extracted_education %}
+                        <li>{{ edu }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+
+        <button class="btn-next" onclick="nextStep()">Next</button>
+        <button class="btn-prev" onclick="prevStep()" style="display: none;">Previous</button>
+    </div>
+
+    <script>
+        let currentStep = 0;
+        const steps = document.querySelectorAll('.step');
+        const nextBtn = document.querySelector('.btn-next');
+        const prevBtn = document.querySelector('.btn-prev');
+
+        function showStep(index) {
+            steps.forEach(step => step.classList.remove('active'));
+            steps[index].classList.add('active');
+            prevBtn.style.display = index > 0 ? 'inline-block' : 'none';
+            nextBtn.style.display = index < steps.length - 1 ? 'inline-block' : 'none';
+        }
+
+        function nextStep() {
+            if (currentStep < steps.length - 1) {
+                currentStep++;
+                showStep(currentStep);
+            }
+        }
+
+        function prevStep() {
+            if (currentStep > 0) {
+                currentStep--;
+                showStep(currentStep);
+            }
+        }
+    </script>
+</body>
+</html>
